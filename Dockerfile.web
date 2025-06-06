@@ -2,6 +2,13 @@ FROM node:20-slim AS builder
 
 WORKDIR /app
 
+# Install build dependencies
+RUN apt-get update && apt-get install -y \
+    python3 \
+    make \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
 # Copy package files
 COPY package*.json ./
 # Install all dependencies including devDependencies
@@ -21,9 +28,21 @@ FROM node:20-slim
 
 WORKDIR /app
 
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y \
+    python3 \
+    make \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
 # Copy package files and install production dependencies
 COPY package*.json ./
-RUN npm install --production --ignore-scripts
+# First install with --ignore-scripts to skip husky prepare script, then explicitly rebuild sqlite3
+# This two-step process is necessary because:
+# 1. --ignore-scripts prevents husky from running its prepare script (which requires dev dependencies)
+# 2. We need to explicitly rebuild sqlite3 after installation to ensure native bindings are compiled
+#    with the correct Node.js version and platform-specific settings
+RUN npm install --production --ignore-scripts && npm rebuild sqlite3
 
 # Copy built application from builder stage
 COPY --from=builder /app/.next ./.next
