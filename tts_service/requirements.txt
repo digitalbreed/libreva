@@ -1,0 +1,10 @@
+chatterbox-tts
+fastapi
+uvicorn
+python-multipart
+torchaudio
+torch
+numpy
+librosa
+matplotlib
+Pillow 

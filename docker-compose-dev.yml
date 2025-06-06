@@ -1,0 +1,82 @@
+# PLATFORM COMPATIBILITY WARNING:
+#
+# We mount ./node_modules from the host into the container so that:
+#   - The editor/IDE on the host can resolve dependencies for intellisense, type checking, etc.
+#   - The container and host use the same node_modules, avoiding sync issues.
+#   - Hot reload works seamlessly.
+#
+# This project uses native Node modules (notably sqlite3), so you MUST install dependencies in the same environment as your container (Linux for most Docker images).
+#
+# On Windows, use WSL2 for development:
+#   - Open your project in WSL2 (e.g., Ubuntu) and run `npm install` there.
+#   - This ensures all native modules are built for Linux, matching your container.
+#   - Do NOT run `npm install` from Windows CMD/PowerShell, or you will get Windows binaries that will not work in the container.
+#   - If you see errors like 'Exec format error' or 'invalid ELF header', delete node_modules and package-lock.json, then reinstall in WSL2.
+#   - For best results, use VS Code's "Remote - WSL" extension to work inside WSL2.
+#   - Ensure your PATH in WSL2 does NOT include Windows Node.js or npm (e.g., /mnt/c/Program Files/nodejs).
+#   - Always use the WSL2-native Node.js and npm. Check with `which node` and `which npm` (should be /usr/bin/node or ~/.nvm/... not /mnt/c/...).
+#   - Recommended: Use nvm (Node Version Manager) to install Node.js in WSL2:
+#       curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+#       nvm install --lts
+#       nvm use --lts
+#
+# On Mac/Linux:
+#   - Just run `npm install` as usual; your environment matches the container.
+
+services:
+    libreva-web:
+        extends:
+            file: docker-compose.yml
+            service: libreva-web
+        build:
+            dockerfile: Dockerfile.web.dev
+        volumes:
+            - .:/app:delegated
+            - /app/.next
+        environment:
+            - NODE_ENV=development
+            - NEXT_TELEMETRY_DISABLED=1
+            - WATCHPACK_POLLING=true
+            - CHOKIDAR_USEPOLLING=true
+            - FAST_REFRESH=true
+            - WATCHPACK_POLLING_INTERVAL=1000
+            - CHOKIDAR_INTERVAL=1000
+        command: >
+            sh -c "mkdir -p /app/data/db && chmod 777 /app/data/db && npm run dev"
+
+    libreva-tts:
+        extends:
+            file: docker-compose.yml
+            service: libreva-tts
+        build:
+            dockerfile: Dockerfile
+        volumes:
+            - ./tts_service:/app
+        deploy:
+            resources:
+                limits:
+                    memory: 32G
+                reservations:
+                    memory: 16G
+                    devices:
+                        - driver: nvidia
+                          count: all
+                          capabilities: [gpu]
+        environment:
+            - TTS_DEVICE=${TTS_DEVICE:-cuda}
+            - CUDA_VISIBLE_DEVICES=0
+            - PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
+            - NVIDIA_VISIBLE_DEVICES=all
+            - OMP_NUM_THREADS=4
+            - MKL_NUM_THREADS=4
+            - NUMEXPR_NUM_THREADS=4
+            - OPENBLAS_NUM_THREADS=4
+            - VECLIB_MAXIMUM_THREADS=4
+            - PYTHONUNBUFFERED=1
+        healthcheck:
+            test: ['CMD', 'curl', '-f', 'http://localhost:3100/health']
+            interval: 60s
+            timeout: 30s
+            retries: 20
+            start_period: 1200s
+        shm_size: 8gb

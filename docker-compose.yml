@@ -1,0 +1,41 @@
+services:
+    libreva-web:
+        build:
+            context: .
+            dockerfile: Dockerfile.web
+        ports:
+            - '${WEB_PORT:-3000}:3000'
+        volumes:
+            - ./data:/app/data
+            - ./data/voices:/app/data/voices
+            - ./data/outputs:/app/data/outputs
+            - ./data/db:/app/data/db
+        environment:
+            - NODE_ENV=production
+            - VOICES_DIR=/app/data/voices
+            - OUTPUTS_DIR=/app/data/outputs
+            - DB_PATH=/app/data/db/libreva.db
+        command: >
+            sh -c "mkdir -p /app/data/db && chmod 777 /app/data/db && npm start"
+        depends_on:
+            libreva-tts:
+                condition: service_healthy
+
+    libreva-tts:
+        build:
+            context: ./tts_service
+            dockerfile: Dockerfile
+        ports:
+            - '${TTS_PORT:-3100}:3100'
+        volumes:
+            - ./data:/app/data
+            - ./data/model:/app/data/model
+        environment:
+            - TTS_DEVICE=${TTS_DEVICE:-cuda}
+        runtime: ${DOCKER_RUNTIME:-runc}
+        healthcheck:
+            test: ['CMD', 'curl', '-f', 'http://localhost:3100/health']
+            interval: 60s
+            timeout: 30s
+            retries: 20
+            start_period: 1200s

@@ -1,0 +1,18 @@
+FROM node:20-slim
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+RUN npm install
+
+# Opt out of Next.js telemetry
+RUN npx next telemetry disable
+
+# The rest of the source code will be mounted as a volume in development
+# This allows for hot-reloading and immediate code changes
+
+EXPOSE 3000
+
+# Use development command that enables hot-reloading
+CMD ["npm", "run", "dev"] 
