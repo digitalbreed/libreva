@@ -24,7 +24,7 @@ LibreVA is a self-hosted, open-source platform for generating high-quality voice
     ```
     On first start, several dependencies and approximately 2 GB of model files will be downloaded automatically. This may take several minutes depending on your internet connection.
 3. **Access the app:**
-   Open [http://localhost:3000](http://localhost:3000) in your browser.
+   Open [http://localhost:3000/libreva](http://localhost:3000/libreva) in your browser.
 4. **Upload a voice sample:**
     - (This step is optional; if you don't have a sample, you can use the built-in default voice for testing.)
     - Click the "Add Voice" button on the homepage or the "Voices" sidebar menu item.
@@ -90,14 +90,14 @@ LibreVA consists of two main services, orchestrated via Docker Compose:
 - **Purpose:** The Next.js web frontend and API server. Manages projects, voices, and user interface.
 - **Build:** Built from `Dockerfile.web` (production) or `Dockerfile.web.dev` (development).
 - **Ports:** Exposes port 3000 by default.
-- **Data:** Mounts the `/data` directory for persistent storage.
+- **Data:** Mounts the `/data` directory for database, voices, and outputs.
 
 ### 2. `libreva-tts`
 
 - **Purpose:** The TTS backend, running Chatterbox TTS for voice synthesis and waveform generation.
 - **Build:** Built from `tts_service/Dockerfile`.
 - **Ports:** Exposes port 3100 internally for API calls from `libreva-web`.
-- **Data:** Shares the `/data` directory for model files, voices, and outputs.
+- **Data:** Mounts the `/data` directory for model files.
 
 ## 📁 The `/data` Folder
 
