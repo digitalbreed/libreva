@@ -2,6 +2,8 @@
 
 LibreVA is a self-hosted, open-source platform for generating high-quality voice acting for indie games. It provides a web interface for managing projects and voices, and a powerful text-to-speech backend based on [Chatterbox TTS](https://github.com/resemble-ai/chatterbox), both containerized using Docker.
 
+![LibreVA Screenshot](https://github.com/user-attachments/assets/7b99f635-4eb9-4a7c-8e77-830efa4130ca)
+
 **⚠️ Important:** For best performance, you need Windows 10 or 11 with WSL2 (Windows Subsystem for Linux) and a recent CUDA capable graphics card (NVIDIA RTX 3060 or better recommended). Other GPU acceleration [isn't possible in a Dockerized environment](https://docs.docker.com/desktop/features/gpu/), but a fall-back option to CPU is available.
 
 ## 🚀 Quick Start
