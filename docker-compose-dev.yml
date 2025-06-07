@@ -30,6 +30,8 @@ services:
             service: libreva-web
         build:
             dockerfile: Dockerfile.web.dev
+            args:
+                - MAX_VOICE_FILE_SIZE=${MAX_VOICE_FILE_SIZE:-5242880}
         volumes:
             - .:/app:delegated
             - /app/.next

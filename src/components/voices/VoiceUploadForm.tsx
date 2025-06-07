@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Voice } from '@/types/voice';
 import { getApiUrl } from '@/app/utils/api';
 import { useToast } from '@/hooks/use-toast';
+import { MAX_FILE_SIZE_BYTES, MAX_FILE_SIZE_MB } from './config';
 
 interface VoiceUploadFormProps {
 	onVoiceAdded: (voice: Voice) => void;
@@ -40,11 +41,10 @@ export function VoiceUploadForm({ onVoiceAdded, onClose }: VoiceUploadFormProps)
 			return;
 		}
 
-		const maxSize = 5 * 1024 * 1024; // 5MB in bytes
-		if (file.size > maxSize) {
+		if (file.size > MAX_FILE_SIZE_BYTES) {
 			toast({
 				title: 'File too large',
-				description: 'File size must be less than 5MB.',
+				description: `File size must be less than ${MAX_FILE_SIZE_MB}MB.`,
 				variant: 'destructive',
 			});
 			return;
@@ -235,7 +235,9 @@ export function VoiceUploadForm({ onVoiceAdded, onClose }: VoiceUploadFormProps)
 				<label className="text-sm font-medium">Voice Sample</label>
 				<div className="mt-2">
 					<Input type="file" accept=".wav" onChange={handleFileSelect} />
-					<p className="text-sm text-muted-foreground mt-1">Maximum file size: 5MB</p>
+					<p className="text-sm text-muted-foreground mt-1">
+						Maximum file size: {MAX_FILE_SIZE_MB}MB
+					</p>
 				</div>
 			</div>
 

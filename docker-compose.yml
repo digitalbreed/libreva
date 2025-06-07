@@ -3,6 +3,8 @@ services:
         build:
             context: .
             dockerfile: Dockerfile.web
+            args:
+                - MAX_VOICE_FILE_SIZE=${MAX_VOICE_FILE_SIZE:-5242880}
         ports:
             - '${WEB_PORT:-3000}:3000'
         volumes:

@@ -21,6 +21,8 @@ RUN npx next telemetry disable
 COPY . .
 
 # Build the application
+ARG MAX_VOICE_FILE_SIZE
+ENV NEXT_PUBLIC_MAX_VOICE_FILE_SIZE=$MAX_VOICE_FILE_SIZE
 RUN npm run build
 
 # Production stage
@@ -51,5 +53,8 @@ COPY --from=builder /app/next.config.js ./
 COPY --from=builder /app/src/lib/db/schema.sql ./src/lib/db/schema.sql
 
 EXPOSE 3000
+
+# Set the environment variable for runtime
+ENV NEXT_PUBLIC_MAX_VOICE_FILE_SIZE=$MAX_VOICE_FILE_SIZE
 
 CMD ["npm", "start"] 

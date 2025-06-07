@@ -29,20 +29,19 @@ const SUBTITLE = 'Generate high-quality voice acting for your indie games using 
 
 function MiniVoiceCard({ voice }: { voice: Voice }) {
 	return (
-		<Card className="mb-3">
-			<AudioPlayer
-				audioUrl={getApiUrl(`/api/voices/${voice.id}/audio`)}
-				waveformUrl={getApiUrl(`/api/voices/${voice.id}/waveform`)}
-				id={voice.id}
-			>
-				<div className="flex-1 min-w-0 px-4 flex flex-col justify-center bg-background/80 z-10">
-					<div className="font-medium truncate">{voice.name}</div>
-					{voice.notes && (
-						<div className="text-sm text-muted-foreground truncate">{voice.notes}</div>
-					)}
-				</div>
-			</AudioPlayer>
-		</Card>
+		<AudioPlayer
+			audioUrl={getApiUrl(`/api/voices/${voice.id}/audio`)}
+			waveformUrl={getApiUrl(`/api/voices/${voice.id}/waveform`)}
+			id={voice.id}
+			className="mb-3"
+		>
+			<div className="flex-1 min-w-0 px-4 flex flex-col justify-center bg-background/80 z-10">
+				<div className="font-medium truncate">{voice.name}</div>
+				{voice.notes && (
+					<div className="text-sm text-muted-foreground truncate">{voice.notes}</div>
+				)}
+			</div>
+		</AudioPlayer>
 	);
 }
 

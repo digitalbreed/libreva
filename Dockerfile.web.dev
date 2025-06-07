@@ -9,6 +9,10 @@ RUN npm install
 # Opt out of Next.js telemetry
 RUN npx next telemetry disable
 
+# Set the environment variable for development
+ARG MAX_VOICE_FILE_SIZE
+ENV NEXT_PUBLIC_MAX_VOICE_FILE_SIZE=$MAX_VOICE_FILE_SIZE
+
 # The rest of the source code will be mounted as a volume in development
 # This allows for hot-reloading and immediate code changes
 

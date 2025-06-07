@@ -177,6 +177,7 @@ This project uses native Node modules (notably `sqlite3`), so you **must** insta
 
 - To ensure you have a CUDA-capable graphics card, type `nvidia-smi` in a terminal and check for the `CUDA Version` output.
 - If the `libreva-tts` service stops with the message `container libreva-libreva-tts-1 is unhealthy` at first start, Docker may have deemed your container unhealthy while it's actually still downloading dependencies or model files. Increase the healthcheck `start_period` parameter in [docker-compose.yml](docker-compose.yml).
+- The default maximum voice sample file size is 5 MB. If you get a "File too large" error when trying to upload a voice sample, either try a smaller sample or change the `MAX_VOICE_FILE_SIZE` environment variable.
 
 ## 🤝 Contributing
 
@@ -188,6 +189,7 @@ Feel free to fork, enhance, and submit pull requests! For questions or ideas, op
 - [Chatterbox TTS (ResembleAI)](https://huggingface.co/ResembleAI/chatterbox)
 - [Docker Desktop WSL2 backend](https://docs.docker.com/desktop/features/wsl/)
 - [Docker Compose](https://docs.docker.com/compose/)
+- [shadcn/ui](https://ui.shadcn.com/docs/components)
 
 ## 📝 License
 

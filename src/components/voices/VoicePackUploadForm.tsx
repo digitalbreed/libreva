@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { getApiUrl } from '@/app/utils/api';
 import type { Voice } from '@/types/voice';
+import { MAX_FILE_SIZE_BYTES, MAX_FILE_SIZE_MB } from './config';
+import { useToast } from '@/hooks/use-toast';
 
 interface VoicePackUploadFormProps {
 	existingVoices: Voice[];
@@ -49,6 +51,7 @@ export default function VoicePackUploadForm({
 	const [metadata, setMetadata] = useState<VoicePackMetadata | null>(null);
 	const [zipInstance, setZipInstance] = useState<JSZip | null>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
+	const { toast } = useToast();
 
 	const handleFile = async (file: File) => {
 		setError('');
@@ -98,8 +101,8 @@ export default function VoicePackUploadForm({
 			}
 
 			// Validate metadata
-			if (!voicePack.version || !voicePack.author || !Array.isArray(voicePack.voices)) {
-				throw new Error('voices.json must contain version, author, and voices array.');
+			if (!Array.isArray(voicePack.voices)) {
+				throw new Error('voices.json must contain a voices array.');
 			}
 
 			// Validate repository URL if provided
@@ -135,6 +138,7 @@ export default function VoicePackUploadForm({
 		setProgress({ current: 0, total: toUpload.length });
 
 		const newVoices: Voice[] = [];
+		const skippedVoices: string[] = [];
 		for (let i = 0; i < toUpload.length; i++) {
 			const v = toUpload[i];
 			if (!v.name || !v.file_name || !v.gender || typeof v.notes !== 'string') {
@@ -158,7 +162,14 @@ export default function VoicePackUploadForm({
 				setStatus('error');
 				return;
 			}
+
+			// Check file size limit
 			const wavBlob = await wavFile.async('blob');
+			if (wavBlob.size > MAX_FILE_SIZE_BYTES) {
+				skippedVoices.push(v.name);
+				continue;
+			}
+
 			const formData = new FormData();
 			formData.append('file', new File([wavBlob], v.file_name, { type: 'audio/wav' }));
 			formData.append('name', v.name);
@@ -183,6 +194,16 @@ export default function VoicePackUploadForm({
 			}
 			setProgress({ current: i + 1, total: toUpload.length });
 		}
+
+		// Show toast for any skipped voices
+		if (skippedVoices.length > 0) {
+			toast({
+				title: 'Some voices were skipped',
+				description: `The following voices exceeded the ${MAX_FILE_SIZE_MB}MB size limit and were skipped: ${skippedVoices.join(', ')}`,
+				variant: 'destructive',
+			});
+		}
+
 		setStatus('done');
 		onVoicesAdded(newVoices);
 	};
