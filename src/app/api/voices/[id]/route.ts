@@ -46,17 +46,23 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 		const updates = await request.json();
 		const { tags, ...voiceUpdates } = updates;
 
-		// Build the SET clause dynamically
-		const setClause = Object.entries(voiceUpdates)
-			.map(([key]) => `${key} = ?`)
-			.join(', ');
-		const values = Object.values(voiceUpdates);
+		// Only proceed with voice update if there are actual updates
+		if (Object.keys(voiceUpdates).length > 0) {
+			// Build the SET clause dynamically
+			const setClause = Object.entries(voiceUpdates)
+				.map(([key]) => `\`${key}\` = ?`)
+				.join(', ');
+			const values = Object.values(voiceUpdates);
 
-		// Update voice
-		const result = await run(`UPDATE voices SET ${setClause} WHERE id = ?`, [...values, id]);
+			// Update voice
+			const result = await run(`UPDATE voices SET ${setClause} WHERE id = ?`, [
+				...values,
+				id,
+			]);
 
-		if (result.changes === 0) {
-			return NextResponse.json({ error: 'Voice not found' }, { status: 404 });
+			if (result.changes === 0) {
+				return NextResponse.json({ error: 'Voice not found' }, { status: 404 });
+			}
 		}
 
 		// Update tags if provided

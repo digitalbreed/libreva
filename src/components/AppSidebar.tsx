@@ -11,6 +11,7 @@ import { Sidebar, SidebarContent, SidebarHeader } from '@/components/ui/sidebar'
 import { Button } from '@/components/ui/button';
 import { CreateProjectDialog } from '@/components/projects/CreateProjectDialog';
 import { ProjectList } from '@/components/projects/ProjectList';
+import { useProjects } from '@/contexts/ProjectContext';
 
 const mainNavItems = [
 	{
@@ -33,10 +34,10 @@ const mainNavItems = [
 export function AppSidebar() {
 	const pathname = usePathname();
 	const [isCreateProjectDialogOpen, setIsCreateProjectDialogOpen] = useState(false);
-	const [refreshTrigger, setRefreshTrigger] = useState(0);
+	const { refreshProjects, refreshTrigger } = useProjects();
 
 	const handleProjectCreated = () => {
-		setRefreshTrigger((prev) => prev + 1);
+		refreshProjects();
 	};
 
 	return (

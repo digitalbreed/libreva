@@ -20,6 +20,8 @@ import {
 	AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Pagination } from '@/components/ui/pagination';
+import { useToast } from '@/hooks/use-toast';
+import { useProjects } from '@/contexts/ProjectContext';
 
 interface Project {
 	id: string;
@@ -40,6 +42,8 @@ interface Output {
 export default function ProjectPage() {
 	const { id } = useParams();
 	const router = useRouter();
+	const { toast } = useToast();
+	const { refreshProjects } = useProjects();
 	const [project, setProject] = useState<Project | null>(null);
 	const [outputs, setOutputs] = useState<Output[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
@@ -102,8 +106,13 @@ export default function ProjectPage() {
 			method: 'DELETE',
 		}).catch((error) => {
 			console.error('Error deleting output:', error);
-			// Optionally, you could show a toast notification here
-			// and reload the outputs list to restore the deleted item
+			toast({
+				variant: 'destructive',
+				title: 'Error',
+				description: 'Failed to delete output. Please try again.',
+			});
+			// Reload outputs to restore the deleted item
+			loadOutputs(page);
 		});
 	};
 
@@ -117,11 +126,18 @@ export default function ProjectPage() {
 				throw new Error('Failed to delete project');
 			}
 
+			// Refresh the project list in the sidebar
+			refreshProjects();
+
 			// Redirect to home page after successful deletion
 			router.push('/');
 		} catch (error) {
 			console.error('Error deleting project:', error);
-			// You might want to show an error toast here
+			toast({
+				variant: 'destructive',
+				title: 'Error',
+				description: 'Failed to delete project. Please try again.',
+			});
 		}
 	};
 
@@ -133,7 +149,7 @@ export default function ProjectPage() {
 		<AudioProvider>
 			<div className="p-6 space-y-6">
 				<div className="flex items-center justify-between">
-					<h1 className="text-2xl font-semibold">{project.title}</h1>
+					<h1 className="text-2xl font-semibold">Project: {project.title}</h1>
 					<AlertDialog>
 						<AlertDialogTrigger asChild>
 							<Button variant="destructive" size="icon">
