@@ -52,16 +52,6 @@ services:
             dockerfile: Dockerfile
         volumes:
             - ./tts_service:/app
-        deploy:
-            resources:
-                limits:
-                    memory: 32G
-                reservations:
-                    memory: 16G
-                    devices:
-                        - driver: nvidia
-                          count: all
-                          capabilities: [gpu]
         environment:
             - TTS_DEVICE=${TTS_DEVICE:-cuda}
             - CUDA_VISIBLE_DEVICES=0

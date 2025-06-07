@@ -14,7 +14,7 @@ LibreVA is a self-hosted, open-source platform for generating high-quality voice
 2. **Start the application with Docker Compose:**
    If you are on WSL2 with CUDA support, run:
     ```bash
-    docker compose up --build
+    docker compose -f docker-compose.yml -f docker-compose.gpu.yml up --build
     ```
     If you are on a different system, run:
     ```bash
@@ -137,7 +137,7 @@ You can run LibreVA in development mode using a separate compose file. This will
 To start in development mode, run:
 
 ```bash
-docker compose -f docker-compose-dev.yml up --build
+docker compose -f docker-compose-dev.yml -f docker-compose.gpu.yml up --build
 ```
 
 The web app will then reload on code changes and the TTS backend will use your local `tts_service` code.
